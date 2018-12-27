@@ -1,0 +1,33 @@
+version: '3'
+services:
+  web:
+    container_name: php-book-app-web
+    build:
+      context: .
+      dockerfile: ./Docker/php/Dockerfile
+    volumes:
+      - .:/var/www/html:cached
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=root
+      - DATABASE_PASS=secure
+      - DATABASE_NAME=qa_app
+    command: bash -c "sh docker-init-setup.sh && apache2-foreground"
+    ports:
+      - "5000:80"
+    networks:
+      - my_network
+  db:
+    container_name: php-book-app-db
+    build: ./Docker/mysql
+    volumes:
+      - ./Docker/mysql/data:/var/lib/mysql
+      - ./Docker/mysql/sqls:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=secure
+    ports:
+      - "13306:3306"
+    networks:
+      - my_network
+networks:
+    my_network:
